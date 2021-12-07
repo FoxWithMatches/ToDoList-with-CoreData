@@ -9,22 +9,27 @@ import UIKit
 import CoreData
 
 class TaskListViewController: UITableViewController {
-    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
-    private var taskList: [Task] = []
-    private let cellID = "task"
+    var context: NSManagedObjectContext!
+    var taskList: [Task] = []
+    let cellID = "task"
 
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellID)
         view.backgroundColor = .white
         setupNavigationBar()
+        
+        context = StorageManager.shared.persistentContainer.viewContext
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+    
         fetchData()
         tableView.reloadData()
+        
     }
 
     private func setupNavigationBar() {
@@ -62,7 +67,7 @@ class TaskListViewController: UITableViewController {
     
     private func fetchData() {
         let fetchRequest = Task.fetchRequest()
-        
+
         do {
             taskList = try context.fetch(fetchRequest)
         } catch {
@@ -70,7 +75,7 @@ class TaskListViewController: UITableViewController {
         }
     }
     
-    private func showAlert(with title: String, and message: String) {
+    func showAlert(with title: String, and message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
             guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
@@ -85,7 +90,7 @@ class TaskListViewController: UITableViewController {
         present(alert, animated: true)
     }
     
-    private func showChangeAlert(at row: Int) {
+    func showChangeAlert(at row: Int) {
         let alert = UIAlertController(title: "Update Task",
                                       message: "What do you want to change?",
                                       preferredStyle: .alert)
@@ -100,17 +105,17 @@ class TaskListViewController: UITableViewController {
         alert.textFields?.first?.text = taskList[row].title
         present(alert, animated: true)
     }
-    
+//
     private func update(at index: Int, newTitle: String) {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-        
+
         do {
             let taskList = try context.fetch(fetchRequest)
             let taskToUpdate = taskList[index] as NSManagedObject
             taskToUpdate.setValue(newTitle, forKey: "title")
             self.taskList[index].title = newTitle
             self.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-            
+
             do {
                 try context.save()
             } catch let error {
@@ -119,25 +124,25 @@ class TaskListViewController: UITableViewController {
         } catch let error {
             print(error.localizedDescription)
         }
-        
+
     }
-    
+
     private func delete(at index: Int) {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-        
+
         do {
             let taskList = try context.fetch(fetchRequest)
             let taskToDelete = taskList[index] as NSManagedObject
             context.delete(taskToDelete)
             self.taskList.remove(at: index)
             tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-            
+
             do {
                 try context.save()
             } catch let error {
                 print(error.localizedDescription)
             }
-        
+
         } catch let error {
             print(error.localizedDescription)
         }
@@ -147,10 +152,10 @@ class TaskListViewController: UITableViewController {
         let task = Task(context: context)
         task.title = taskName
         taskList.append(task)
-        
+
         let cellIndex = IndexPath(row: taskList.count - 1, section: 0)
         tableView.insertRows(at: [cellIndex], with: .automatic)
-        
+
         if context.hasChanges {
             do {
                 try context.save()
@@ -160,7 +165,6 @@ class TaskListViewController: UITableViewController {
         }
     }
 }
-
 
 extension TaskListViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
