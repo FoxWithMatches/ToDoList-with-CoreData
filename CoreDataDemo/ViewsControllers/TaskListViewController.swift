@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class TaskListViewController: UITableViewController {
     private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
@@ -84,6 +85,64 @@ class TaskListViewController: UITableViewController {
         present(alert, animated: true)
     }
     
+    private func showChangeAlert(at row: Int) {
+        let alert = UIAlertController(title: "Update Task",
+                                      message: "What do you want to change?",
+                                      preferredStyle: .alert)
+        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
+            guard let task = alert.textFields?.first?.text, !task.isEmpty else { return }
+            self.update(at: row, newTitle: task)
+        }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
+        alert.addAction(saveAction)
+        alert.addAction(cancelAction)
+        alert.addTextField()
+        alert.textFields?.first?.text = taskList[row].title
+        present(alert, animated: true)
+    }
+    
+    private func update(at index: Int, newTitle: String) {
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        
+        do {
+            let taskList = try context.fetch(fetchRequest)
+            let taskToUpdate = taskList[index] as NSManagedObject
+            taskToUpdate.setValue(newTitle, forKey: "title")
+            self.taskList[index].title = newTitle
+            self.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            
+            do {
+                try context.save()
+            } catch let error {
+                print(error.localizedDescription)
+            }
+        } catch let error {
+            print(error.localizedDescription)
+        }
+        
+    }
+    
+    private func delete(at index: Int) {
+        let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
+        
+        do {
+            let taskList = try context.fetch(fetchRequest)
+            let taskToDelete = taskList[index] as NSManagedObject
+            context.delete(taskToDelete)
+            self.taskList.remove(at: index)
+            tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
+            
+            do {
+                try context.save()
+            } catch let error {
+                print(error.localizedDescription)
+            }
+        
+        } catch let error {
+            print(error.localizedDescription)
+        }
+    }
+
     private func save(_ taskName: String) {
         let task = Task(context: context)
         task.title = taskName
@@ -102,6 +161,7 @@ class TaskListViewController: UITableViewController {
     }
 }
 
+
 extension TaskListViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         taskList.count
@@ -115,4 +175,18 @@ extension TaskListViewController {
         cell.contentConfiguration = content
         return cell
     }
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            delete(at: indexPath.row)
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        showChangeAlert(at: indexPath.row)
+    }
+  
 }
