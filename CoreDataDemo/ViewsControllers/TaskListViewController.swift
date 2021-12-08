@@ -10,16 +10,18 @@ import CoreData
 
 class TaskListViewController: UITableViewController {
     
-    lazy var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        formatter.timeStyle = .short
-        return formatter
-    }()
     
     var context: NSManagedObjectContext!
     var taskList: [Task] = []
     let cellID = "task"
+    
+    lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .short
+        
+        return formatter
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -114,7 +116,7 @@ class TaskListViewController: UITableViewController {
         alert.textFields?.first?.text = taskList[row].title
         present(alert, animated: true)
     }
-    //
+    
     private func update(at index: Int, newTitle: String) {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
         
@@ -198,12 +200,13 @@ extension TaskListViewController {
         var content = cell.defaultContentConfiguration()
         content.text = task.title
         content.secondaryText = dateFormatter.string(from: taskDate)
+        
         cell.contentConfiguration = content
         
         return cell
     }
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        return true
+        true
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
