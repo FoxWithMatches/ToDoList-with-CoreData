@@ -189,8 +189,19 @@ extension TaskListViewController {
         }
     }
     
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        showChangeAlert(at: indexPath.row)
+    override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let done = doneAction(at: indexPath)
+       
+        return UISwipeActionsConfiguration(actions: [done])
     }
-  
+    
+    func doneAction(at indexPath: IndexPath) -> UIContextualAction {
+        let action = UIContextualAction(style: .destructive, title: "Done") { (action, view, completion) in
+            completion(true)
+        }
+        showChangeAlert(at: indexPath.row)
+        action.backgroundColor = .systemGreen
+        action.image = UIImage(systemName: "checkmark.circle")
+        return action
+    }
 }
