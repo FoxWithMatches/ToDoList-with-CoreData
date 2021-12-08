@@ -238,15 +238,6 @@ extension TaskListViewController {
         let moveTask = taskList.remove(at: sourceIndexPath.row)
         taskList.insert(moveTask, at: destinationIndexPath.row)
         tableView.reloadData()
-        
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch let error {
-                print(error)
-            }
-        }
     }
-    
 }
 
