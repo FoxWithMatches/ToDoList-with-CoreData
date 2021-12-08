@@ -92,8 +92,8 @@ class TaskListViewController: UITableViewController {
             self.save(task)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
-        alert.addAction(saveAction)
         alert.addAction(cancelAction)
+        alert.addAction(saveAction)
         alert.addTextField { textField in
             textField.placeholder = "New Task"
         }
@@ -109,8 +109,8 @@ class TaskListViewController: UITableViewController {
             self.update(at: row, newTitle: task)
         }
         let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
-        alert.addAction(saveAction)
         alert.addAction(cancelAction)
+        alert.addAction(saveAction)
         alert.addTextField()
         alert.textFields?.first?.text = taskList[row].title
         present(alert, animated: true)
@@ -156,7 +156,7 @@ class TaskListViewController: UITableViewController {
             print(error.localizedDescription)
         }
     }
-    
+  
     private func save(_ taskName: String) {
         let task = Task(context: context)
         task.date = Date()
