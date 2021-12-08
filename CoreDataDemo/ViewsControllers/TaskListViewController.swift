@@ -61,13 +61,12 @@ class TaskListViewController: UITableViewController {
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.scrollEdgeAppearance = navBarAppearance
         
+        navigationItem.leftBarButtonItem = self.editButtonItem
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
             action: #selector(addNewTask)
         )
-        
-        navigationItem.leftBarButtonItem = self.editButtonItem
         
         navigationController?.navigationBar.tintColor = .white
     }
@@ -135,7 +134,6 @@ class TaskListViewController: UITableViewController {
         } catch let error {
             print(error.localizedDescription)
         }
-        
     }
     
     private func delete(at index: Int) {
@@ -172,7 +170,7 @@ class TaskListViewController: UITableViewController {
             do {
                 try context.save()
             } catch let error {
-                print(error)
+                print(error.localizedDescription)
             }
         }
     }
@@ -195,8 +193,8 @@ extension TaskListViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
-        guard let task = taskList[indexPath.row] as? Task,
-              let taskDate = task.date else { return cell }
+        let task = taskList[indexPath.row]
+        guard let taskDate = task.date else { return cell }
         var content = cell.defaultContentConfiguration()
         content.text = task.title
         content.secondaryText = dateFormatter.string(from: taskDate)
