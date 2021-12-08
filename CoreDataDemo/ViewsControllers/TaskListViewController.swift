@@ -164,6 +164,16 @@ class TaskListViewController: UITableViewController {
             }
         }
     }
+    
+    private func doneAction(at indexPath: IndexPath) -> UIContextualAction {
+        let action = UIContextualAction(style: .destructive, title: "Done") { (action, view, completion) in
+            completion(true)
+        }
+        showChangeAlert(at: indexPath.row)
+        action.backgroundColor = .systemGreen
+        action.image = UIImage(systemName: "checkmark.circle")
+        return action
+    }
 }
 
 extension TaskListViewController {
@@ -183,6 +193,10 @@ extension TaskListViewController {
         return true
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             delete(at: indexPath.row)
@@ -191,17 +205,8 @@ extension TaskListViewController {
     
     override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let done = doneAction(at: indexPath)
-       
+    
         return UISwipeActionsConfiguration(actions: [done])
     }
     
-    func doneAction(at indexPath: IndexPath) -> UIContextualAction {
-        let action = UIContextualAction(style: .destructive, title: "Done") { (action, view, completion) in
-            completion(true)
-        }
-        showChangeAlert(at: indexPath.row)
-        action.backgroundColor = .systemGreen
-        action.image = UIImage(systemName: "checkmark.circle")
-        return action
-    }
 }
