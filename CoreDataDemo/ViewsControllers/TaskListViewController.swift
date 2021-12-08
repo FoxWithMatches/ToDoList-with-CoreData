@@ -13,7 +13,7 @@ class TaskListViewController: UITableViewController {
     var context: NSManagedObjectContext!
     var taskList: [Task] = []
     let cellID = "task"
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellID)
@@ -21,17 +21,17 @@ class TaskListViewController: UITableViewController {
         setupNavigationBar()
         
         context = StorageManager.shared.persistentContainer.viewContext
-
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-    
+        
         fetchData()
         tableView.reloadData()
         
     }
-
+    
     private func setupNavigationBar() {
         title = "Task List"
         navigationController?.navigationBar.prefersLargeTitles = true
@@ -58,6 +58,12 @@ class TaskListViewController: UITableViewController {
             action: #selector(addNewTask)
         )
         
+        navigationItem.leftBarButtonItem = self.editButtonItem
+        //        navigationItem.leftBarButtonItem = UIBarButtonItem(
+        //            barButtonSystemItem: .edit,
+        //            target: self,
+        //            action: #selector(addNewTask))
+        //
         navigationController?.navigationBar.tintColor = .white
     }
     
@@ -67,7 +73,7 @@ class TaskListViewController: UITableViewController {
     
     private func fetchData() {
         let fetchRequest = Task.fetchRequest()
-
+        
         do {
             taskList = try context.fetch(fetchRequest)
         } catch {
@@ -105,17 +111,17 @@ class TaskListViewController: UITableViewController {
         alert.textFields?.first?.text = taskList[row].title
         present(alert, animated: true)
     }
-//
+    //
     private func update(at index: Int, newTitle: String) {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-
+        
         do {
             let taskList = try context.fetch(fetchRequest)
             let taskToUpdate = taskList[index] as NSManagedObject
             taskToUpdate.setValue(newTitle, forKey: "title")
             self.taskList[index].title = newTitle
             self.tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-
+            
             do {
                 try context.save()
             } catch let error {
@@ -124,38 +130,38 @@ class TaskListViewController: UITableViewController {
         } catch let error {
             print(error.localizedDescription)
         }
-
+        
     }
-
+    
     private func delete(at index: Int) {
         let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-
+        
         do {
             let taskList = try context.fetch(fetchRequest)
             let taskToDelete = taskList[index] as NSManagedObject
             context.delete(taskToDelete)
             self.taskList.remove(at: index)
             tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
-
+            
             do {
                 try context.save()
             } catch let error {
                 print(error.localizedDescription)
             }
-
+            
         } catch let error {
             print(error.localizedDescription)
         }
     }
-
+    
     private func save(_ taskName: String) {
         let task = Task(context: context)
         task.title = taskName
         taskList.append(task)
-
+        
         let cellIndex = IndexPath(row: taskList.count - 1, section: 0)
         tableView.insertRows(at: [cellIndex], with: .automatic)
-
+        
         if context.hasChanges {
             do {
                 try context.save()
@@ -205,8 +211,29 @@ extension TaskListViewController {
     
     override func tableView(_ tableView: UITableView, leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let done = doneAction(at: indexPath)
-    
+        
         return UISwipeActionsConfiguration(actions: [done])
     }
     
+    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .delete
+    }
+    
+    override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        true
+    }
+    
+    override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let moveTask = taskList.remove(at: sourceIndexPath.row)
+        taskList.insert(moveTask, at: destinationIndexPath.row)
+        tableView.reloadData()
+        
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch let error {
+                print(error)
+            }
+        }
+    }
 }
