@@ -183,7 +183,7 @@ class TaskListViewController: UITableViewController {
         }
         showChangeAlert(at: indexPath.row)
         action.backgroundColor = .systemGreen
-        action.image = UIImage(systemName: "checkmark.circle")
+        action.image = UIImage(systemName: "highlighter")
         return action
     }
 }
