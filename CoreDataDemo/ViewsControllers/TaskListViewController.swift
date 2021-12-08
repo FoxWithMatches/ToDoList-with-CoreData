@@ -59,11 +59,7 @@ class TaskListViewController: UITableViewController {
         )
         
         navigationItem.leftBarButtonItem = self.editButtonItem
-        //        navigationItem.leftBarButtonItem = UIBarButtonItem(
-        //            barButtonSystemItem: .edit,
-        //            target: self,
-        //            action: #selector(addNewTask))
-        //
+        
         navigationController?.navigationBar.tintColor = .white
     }
     
@@ -224,6 +220,7 @@ extension TaskListViewController {
     }
     
     override func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        
         let moveTask = taskList.remove(at: sourceIndexPath.row)
         taskList.insert(moveTask, at: destinationIndexPath.row)
         tableView.reloadData()
@@ -236,4 +233,6 @@ extension TaskListViewController {
             }
         }
     }
+    
 }
+
