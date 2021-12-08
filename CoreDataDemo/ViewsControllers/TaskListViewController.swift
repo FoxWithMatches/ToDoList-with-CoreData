@@ -10,6 +10,13 @@ import CoreData
 
 class TaskListViewController: UITableViewController {
     
+    lazy var dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .short
+        return formatter
+    }()
+    
     var context: NSManagedObjectContext!
     var taskList: [Task] = []
     let cellID = "task"
@@ -152,6 +159,7 @@ class TaskListViewController: UITableViewController {
     
     private func save(_ taskName: String) {
         let task = Task(context: context)
+        task.date = Date()
         task.title = taskName
         taskList.append(task)
         
@@ -185,10 +193,13 @@ extension TaskListViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
-        let task = taskList[indexPath.row]
+        guard let task = taskList[indexPath.row] as? Task,
+              let taskDate = task.date else { return cell }
         var content = cell.defaultContentConfiguration()
         content.text = task.title
+        content.secondaryText = dateFormatter.string(from: taskDate)
         cell.contentConfiguration = content
+        
         return cell
     }
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
