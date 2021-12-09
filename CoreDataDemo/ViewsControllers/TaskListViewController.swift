@@ -198,6 +198,7 @@ extension TaskListViewController {
         var content = cell.defaultContentConfiguration()
         content.text = task.title
         content.secondaryText = dateFormatter.string(from: taskDate)
+        content.secondaryTextProperties.color = .systemGray
         
         cell.contentConfiguration = content
         
